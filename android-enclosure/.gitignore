@@ -1,0 +1,29 @@
+# Gradle files
+.gradle/
+build/
+app/build/
+.kotlin/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+.DS_Store
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.aab
+*.apk
+*.idsig
+output-metadata.json
+release/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Keep wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
