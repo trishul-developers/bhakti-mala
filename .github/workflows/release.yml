@@ -52,7 +52,7 @@ jobs:
           test -n "$ANDROID_KEY_ALIAS" || { echo "Missing ANDROID_KEY_ALIAS secret" >&2; exit 1; }
           test -n "$ANDROID_KEY_PASSWORD" || { echo "Missing ANDROID_KEY_PASSWORD secret" >&2; exit 1; }
           umask 077
-          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/bhakti-mala-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$RUNNER_TEMP/bhakti-mala-release.jks"
           test -s "$RUNNER_TEMP/bhakti-mala-release.jks"
 
       - name: Build release APK (unsigned)
