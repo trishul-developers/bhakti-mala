@@ -58,12 +58,12 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$RUNNER_TEMP/bhakti-mala-release.jks"
           test -s "$RUNNER_TEMP/bhakti-mala-release.jks"
 
-      - name: Build release APK (unsigned)
+      - name: Build release APK and AAB (unsigned)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         working-directory: android-enclosure
-        run: ./gradlew --no-daemon assembleRelease
+        run: ./gradlew --no-daemon assembleRelease bundleRelease
 
-      - name: Build signed release APK
+      - name: Build signed release APK and AAB
         if: startsWith(github.ref, 'refs/tags/')
         working-directory: android-enclosure
         env:
@@ -71,13 +71,15 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: ./gradlew --no-daemon assembleRelease
+        run: ./gradlew --no-daemon assembleRelease bundleRelease
 
-      - name: Name Android release APK
+      - name: Name Android release artifacts
         shell: bash
         run: |
           source android-enclosure/version.properties
           version="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+          
+          # Name APK
           apk_dir="android-enclosure/app/build/outputs/apk/release"
           if [ -f "$apk_dir/app-release.apk" ]; then
             source_apk="$apk_dir/app-release.apk"
@@ -85,6 +87,17 @@ jobs:
             source_apk="$apk_dir/app-release-unsigned.apk"
           fi
           mv "$source_apk" "$apk_dir/bhakti-mala-${version}-release.apk"
+
+          # Name AAB (App Bundle for Play Store)
+          bundle_dir="android-enclosure/app/build/outputs/bundle/release"
+          if [ -f "$bundle_dir/app-release.aab" ]; then
+            source_aab="$bundle_dir/app-release.aab"
+          elif [ -f "$bundle_dir/app-release-unsigned.aab" ]; then
+            source_aab="$bundle_dir/app-release-unsigned.aab"
+          fi
+          if [ -n "$source_aab" ]; then
+            mv "$source_aab" "$bundle_dir/bhakti-mala-${version}-release.aab"
+          fi
 
       - name: Verify signed APK
         if: startsWith(github.ref, 'refs/tags/')
@@ -113,6 +126,7 @@ jobs:
           name: bhakti-mala-${{ github.ref_name }}
           path: |
             android-enclosure/app/build/outputs/apk/release/bhakti-mala-*-release.apk
+            android-enclosure/app/build/outputs/bundle/release/bhakti-mala-*-release.aab
             bhakti-mala-webapp-*.zip
           if-no-files-found: error
 
@@ -123,4 +137,5 @@ jobs:
           generate_release_notes: true
           files: |
             android-enclosure/app/build/outputs/apk/release/bhakti-mala-*-release.apk
+            android-enclosure/app/build/outputs/bundle/release/bhakti-mala-*-release.aab
             bhakti-mala-webapp-*.zip

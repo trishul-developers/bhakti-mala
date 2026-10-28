@@ -1,4 +1,4 @@
-# Bhakti Mala (भक्ति माला) — v0.1.2
+# Bhakti Mala (भक्ति माला) — v0.1.4
 
 > **Modular Naam Jap Counter, Sacred Sadhana Analytics & Native Android Hardware Enclosure**
 
@@ -118,10 +118,10 @@ gh secret set ANDROID_KEY_PASSWORD -R trishul-developers/bhakti-mala --body "you
 
 ## Automated CI/CD & GitHub Releases
 
-Pushes with tags matching `v*` (e.g. `v0.1.2`) trigger the release workflow in `.github/workflows/release.yml`:
+Pushes with tags matching `v*` (e.g. `v0.1.4`) trigger the release workflow in `.github/workflows/release.yml`:
 1. Validates that the git tag matches `android-enclosure/version.properties`.
 2. Decodes the release keystore from repository secrets (`ANDROID_KEYSTORE_BASE64`).
-3. Compiles, optimizes (R8), and signs the release APK (`assembleRelease`).
-4. Verifies the signature with Android SDK `apksigner`.
+3. Compiles, optimizes (R8), and signs both the standalone release APK (`assembleRelease`) and Google Play App Bundle (`bundleRelease`).
+4. Verifies the APK signature with Android SDK `apksigner`.
 5. Packages web assets into a release `.zip`.
-6. Publishes a GitHub Release with attached APK and web package.
+6. Publishes a GitHub Release with attached `.apk`, `.aab`, and `.zip` web package.
