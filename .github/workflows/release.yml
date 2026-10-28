@@ -18,6 +18,9 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Make Gradle wrapper executable
+        run: chmod +x android-enclosure/gradlew
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
