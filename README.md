@@ -71,13 +71,48 @@ Set the environment variables:
 ```bash
 export ANDROID_KEYSTORE_PATH="/path/to/keystore.jks"
 export ANDROID_KEYSTORE_PASSWORD="your-store-password"
-export ANDROID_KEY_ALIAS="bhakti-mala"
+export ANDROID_KEY_ALIAS="your-key-alias"
 export ANDROID_KEY_PASSWORD="your-key-password"
 
 cd android-enclosure
 ./gradlew assembleRelease
 ```
 The signed and R8-optimized release APK is generated at `android-enclosure/app/build/outputs/apk/release/app-release.apk`.
+
+### Generating Production Keystore & Updating GitHub Secrets
+
+When you are ready to configure your official production signing keys for GitHub CI:
+
+#### 1. Generate Keystore Locally
+```bash
+keytool -genkeypair -v \
+  -keystore bhakti-mala-production.jks \
+  -alias bhakti-mala \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 10000
+```
+
+#### 2. Encode Keystore to Base64
+* **PowerShell**:
+  ```powershell
+  $bytes = [System.IO.File]::ReadAllBytes("path\to\bhakti-mala-production.jks")
+  $base64 = [System.Convert]::ToBase64String($bytes)
+  ```
+* **Bash / macOS / Linux**:
+  ```bash
+  base64 -w 0 bhakti-mala-production.jks > keystore_base64.txt
+  ```
+
+#### 3. Update GitHub Repository Secrets
+Set the secrets via GitHub CLI or the GitHub Web UI (**Settings → Secrets and variables → Actions**):
+```bash
+# Using GitHub CLI:
+gh secret set ANDROID_KEYSTORE_BASE64 -R trishul-developers/bhakti-mala --body "$base64"
+gh secret set ANDROID_KEYSTORE_PASSWORD -R trishul-developers/bhakti-mala --body "your-keystore-password"
+gh secret set ANDROID_KEY_ALIAS -R trishul-developers/bhakti-mala --body "bhakti-mala"
+gh secret set ANDROID_KEY_PASSWORD -R trishul-developers/bhakti-mala --body "your-key-password"
+```
 
 ---
 
